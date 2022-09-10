@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { authService, firebaseInstance } from '../fbase';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newAccout, setNewAccount] = useState('false');
+  const [error, setError] = useState('');
 
   const onChange = (event) => {
     const {
@@ -15,8 +18,39 @@ const Auth = () => {
     }
   };
 
-  const onSubmit = (event) => {
+  const onSubmit = async (event) => {
     event.preventDefault();
+    let data;
+    try {
+      if (newAccout) {
+        data = await authService.createUserWithEmailAndPassword(
+          email,
+          password
+        );
+      } else {
+        data = await authService.signInWithEmailAndPassword(email, password);
+      }
+      console.log(data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+  const toggleAccount = () => {
+    setNewAccount((prev) => !prev);
+  };
+
+  const onSocialClick = async (event) => {
+    const {
+      target: { name },
+    } = event;
+    let provider;
+    if (name === 'google') {
+      provider = new firebaseInstance.auth.GoogleAuthProvider();
+    } else if (name === 'github') {
+      provider = new firebaseInstance.auth.GithubAuthProvider();
+    }
+    const data = await authService.signInWithPopup(provider);
+    console.log(data);
   };
 
   return (
@@ -24,7 +58,7 @@ const Auth = () => {
       <form onSubmit={onSubmit}>
         <input
           name='email'
-          type='text'
+          type='email'
           placeholder='Email'
           required
           value={email}
@@ -38,11 +72,23 @@ const Auth = () => {
           value={password}
           onChange={onChange}
         />
-        <input type='submit' value={'Log In'} required />
+        <input
+          type='submit'
+          value={newAccout ? 'Create Account' : 'Log In'}
+          required
+        />
+        {error}
       </form>
+      <span onClick={toggleAccount}>
+        {newAccout ? 'Sign in' : 'Create Account'}
+      </span>
       <div>
-        <button>Continue with Google</button>
-        <button>Continue with Git Hub</button>
+        <button onClick={onSocialClick} name='google'>
+          Continue with Google
+        </button>
+        <button onClick={onSocialClick} name='github'>
+          Continue with Git Hub
+        </button>
       </div>
     </div>
   );
