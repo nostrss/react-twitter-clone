@@ -8,6 +8,7 @@ export default function Profile({ userObj, refreshUser }) {
   const onLogOutClick = () => {
     authService.signOut();
     history.push('/');
+    refreshUser();
   };
   const getMynweets = async () => {
     const nweets = await dbService
@@ -31,7 +32,6 @@ export default function Profile({ userObj, refreshUser }) {
       await userObj.updateProfile({
         displayName: newDisplayName,
       });
-      refreshUser();
     }
   };
 
