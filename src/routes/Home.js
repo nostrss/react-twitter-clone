@@ -20,7 +20,7 @@ const Home = ({ userObj }) => {
 
   const onSubmit = async (event) => {
     event.preventDefault();
-    let attachmentUrl;
+    let attachmentUrl = '';
     if (attachment !== '') {
       const attachmentRef = storageService
         .ref()
